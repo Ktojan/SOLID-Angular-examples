@@ -1,8 +1,9 @@
-import { JsonExporterService } from './json-exporter.service';
-import { Component, OnInit } from '@angular/core';
+import { JsonExporterService } from "./json-exporter.service";
+import { Component } from "@angular/core";
+import { DayWeather, sunny25 } from "./shared";
 
 @Component({
-  selector: 'app-widget',
+  selector: "app-widget",
   template: `
     <div class="header">
       <h1>Weather</h1>
@@ -11,53 +12,38 @@ import { Component, OnInit } from '@angular/core';
       </button>
     </div>
     <mat-divider></mat-divider>
-    <h5>Currently</h5>
+    <h3>Currently is</h3>
     <section class="wether-widget">
-      <mat-icon class="widget-icon">wb_sunny</mat-icon>
-      <div class="value">+25</div>
+      <mat-icon
+        class="widget-icon"
+        [style.color]="dayWeather.weather.is_sunny ? 'orange' : 'gray'"
+        >{{ dayWeather.weather.is_sunny ? "wb_sunny" : "wb_cloudy" }}</mat-icon>
+      <div class="value">
+        <span *ngIf="dayWeather.weather.temp > 0">+</span>{{ dayWeather.weather.temp }}
+      </div>
     </section>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        border: #f0ebeb solid 1px;
-        border-radius: 5px;
-        padding: 15px;
-        background-color: #fafafa;
-        width: 400px;
-        margin-left: 20px;
-      }
-      .wether-widget {
-        display: block;
-        text-align: center;
-        position: relative;
-        min-width: 190px;
-      }
-      .header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .widget-icon {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        color: orange;
-      }
-      .value {
-        font-size: 24px;
-        opacity: 0.7;
-      }
-    `,
-  ],
+  styleUrls: ["widget.component.css"],
 })
-export class WidgetComponent implements OnInit {
+export class WidgetComponent {
   constructor(private jsonExporter: JsonExporterService) {}
+  data = JSON.stringify(sunny25);
+  dayWeather: DayWeather = sunny25;
 
-  ngOnInit(): void {}
-
-  onExportJson() {
+  onExportJson(): void {
     this.jsonExporter.export();
   }
 }
+
+/*  ------------ WRONG IMPLEMENTATION ----------------
+onExportJson() {
+    let data = JSON.stringify(sunny25);
+    let dataUri ='data:application/json;charset=utf-8,' + encodeURIComponent(data);
+    let exportFileName = 'weather.json';
+    let linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileName);
+    linkElement.click();
+  }
+
+*/
