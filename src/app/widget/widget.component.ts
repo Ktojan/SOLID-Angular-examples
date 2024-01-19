@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { AfterContentInit, Component, ContentChild } from '@angular/core';
+import { Reloadable, RELOADABLE_TOKEN } from '../shared-stuff';
+import { WidgetBaseClass } from './widget-base-class';
 
 @Component({
   selector: 'app-widget',
   template: `
     <div class="header">
-      <h1>Weather</h1>
-      <button mat-stroked-button (click)="onExportJson()">
+      <h1>{{title}}</h1>
+      <button [matBadge]="counter" mat-stroked-button (click)="onExportJson()">
         Export as JSON
       </button>
     </div>
@@ -31,8 +33,33 @@ import { Component } from '@angular/core';
     `,
   ],
 })
-export class WidgetComponent {
-  onExportJson() {
-    console.log('Export Json logic..');
+export class WidgetComponent extends WidgetBaseClass implements AfterContentInit {  
+  @ContentChild(RELOADABLE_TOKEN) childComp?: Reloadable;
+  
+  /*  ------------ WRONG DEPENDENCY INVERSION ----------------  
+
+  @ContentChild(WeatherContentComponent) weatherComp?: WeatherContentComponent;
+  ngAfterContentInit() {
+    if (this.weatherComp) this.weatherComp.compData.temp += 10.5;
   }
+  */
+  counter = 0;
+
+  ngAfterContentInit() {
+    if (this.childComp) {
+      this.childComp.onLoaded();
+    }
+  }
+
+  onExportJson() {
+    super.onExportJson(this.title || 'some');
+    this.counter++;
+  }
+
+/*  ------------ WRONG LISKOV SUBSTITUTION IMPLEMENTATION ----------------  
+  onExportJson() {
+    return prompt('Lets violate Liskov subst principle', 'why not?');
+  }
+*/
+
 }
